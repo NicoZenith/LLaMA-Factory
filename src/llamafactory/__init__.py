@@ -25,6 +25,28 @@ Use modelscope: USE_MODELSCOPE_HUB=1
 Use openmind: USE_OPENMIND_HUB=1
 """
 
+import torch.serialization as _ts
+
+# NumPy internals we need to unpickle RNG state
+from numpy import ndarray
+from numpy.core.multiarray import _reconstruct
+
+# DeepSpeed Zero internals in optimizer and loss scaler state
+from deepspeed.runtime.zero.config import ZeroStageEnum
+from deepspeed.runtime.fp16.loss_scaler import LossScaler
+from deepspeed.runtime.zero.stage_1_and_2 import DeepSpeedZeroOptimizer
+from deepspeed.runtime.zero.stage3 import DeepSpeedZeroOptimizer_Stage3
+
+# Allow torch.load(weights_only=True) to unpickle all these classes
+_ts.add_safe_globals([
+    ndarray,
+    _reconstruct,
+    ZeroStageEnum,
+    LossScaler,
+    DeepSpeedZeroOptimizer,
+    DeepSpeedZeroOptimizer_Stage3,
+])
+
 from .extras.env import VERSION
 
 
